@@ -1,0 +1,82 @@
+title: Profile
+tabs:
+  main:
+    display: Main
+    sections:
+      -
+        display: Identity
+        fields:
+          -
+            handle: name
+            field:
+              type: text
+              display: Name
+              instructions: 'Shown as the wordmark in the header, the hero and the footer.'
+              validate:
+                - required
+          -
+            handle: role
+            field:
+              type: text
+              display: Role
+              width: 50
+          -
+            handle: location
+            field:
+              type: text
+              display: 'Based in'
+              width: 50
+          -
+            handle: tagline
+            field:
+              type: text
+              display: Tagline
+              character_limit: 80
+          -
+            handle: now
+            field:
+              type: text
+              display: 'Status line'
+              instructions: 'The line with the green dot above the name, e.g. "Currently exploring Statamic".'
+              width: 50
+          -
+            handle: availability
+            field:
+              type: text
+              display: Availability
+              width: 50
+          -
+            handle: intro
+            field:
+              type: textarea
+              display: Introduction
+              instructions: 'Two or three sentences for the homepage hero.'
+      -
+        display: Contact
+        fields:
+          -
+            handle: email
+            field:
+              type: text
+              input_type: email
+              display: 'Email address'
+              validate:
+                - email
+          -
+            handle: links
+            field:
+              type: grid
+              display: Links
+              add_row: 'Add link'
+              fields:
+                -
+                  handle: label
+                  field:
+                    type: text
+                    display: Label
+                -
+                  handle: url
+                  field:
+                    type: text
+                    input_type: url
+                    display: URL

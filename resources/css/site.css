@@ -1,3 +1,221 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 @source "../views";
 @source "../../content";
+
+/*
+ * Signal brand tokens (see the brandbook, chapter 03 colour).
+ * Dark is the primary mode. Light follows the visitor's system setting,
+ * and the theme toggle can force either one with data-theme on <html>.
+ * Components only ever use the Tailwind names below (bg-bg, text-fg-2, …),
+ * so switching theme is just swapping these variables.
+ */
+:root {
+    --bg: #0f1012;
+    --bg-2: #16171a;
+    --bg-3: #1d1f23;
+    --fg: #ecedee;
+    --fg-2: #a1a4ab;
+    --fg-3: #8a8e96;
+    --line: #24262b;
+    --line-2: #33363c;
+    --accent: #f5a524; /* signal colour as text */
+    --accent-bg: #f5a524; /* signal colour as a fill */
+    --on-accent: #0f1012;
+    --dot: #ecedee;
+    --ok: #3dd68c;
+    --warn: #ff8b3d;
+    --err: #ff6369;
+    color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --bg: #fafaf9;
+        --bg-2: #f2f2f0;
+        --bg-3: #ebebe8;
+        --fg: #111214;
+        --fg-2: #55585f;
+        --fg-3: #686c74;
+        --line: #e4e4e1;
+        --line-2: #d1d1cd;
+        --accent: #9a5b00;
+        --accent-bg: #f5a524;
+        --on-accent: #111214;
+        --dot: #111214;
+        --ok: #11804a;
+        --warn: #b4500f;
+        --err: #c8283a;
+        color-scheme: light;
+    }
+}
+
+:root[data-theme="light"] {
+    --bg: #fafaf9;
+    --bg-2: #f2f2f0;
+    --bg-3: #ebebe8;
+    --fg: #111214;
+    --fg-2: #55585f;
+    --fg-3: #686c74;
+    --line: #e4e4e1;
+    --line-2: #d1d1cd;
+    --accent: #9a5b00;
+    --accent-bg: #f5a524;
+    --on-accent: #111214;
+    --dot: #111214;
+    --ok: #11804a;
+    --warn: #b4500f;
+    --err: #c8283a;
+    color-scheme: light;
+}
+
+@theme inline {
+    --color-bg: var(--bg);
+    --color-bg-2: var(--bg-2);
+    --color-bg-3: var(--bg-3);
+    --color-fg: var(--fg);
+    --color-fg-2: var(--fg-2);
+    --color-fg-3: var(--fg-3);
+    --color-line: var(--line);
+    --color-line-2: var(--line-2);
+    --color-accent: var(--accent);
+    --color-accent-bg: var(--accent-bg);
+    --color-on-accent: var(--on-accent);
+    --color-ok: var(--ok);
+    --color-warn: var(--warn);
+    --color-err: var(--err);
+
+    --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Consolas, monospace;
+
+    --radius-control: 6px;
+    --radius-panel: 10px;
+
+    --ease-signal: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    --animate-blink: blink 1.1s steps(1) infinite;
+    --animate-pulse-dot: pulse-dot 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+    @keyframes pulse-dot {
+        0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
+        70%, 100% { box-shadow: 0 0 0 7px transparent; }
+    }
+}
+
+@layer base {
+    html {
+        scroll-padding-top: 5rem;
+    }
+    body {
+        @apply bg-bg font-sans text-fg antialiased;
+    }
+    :focus-visible {
+        @apply rounded-[2px] outline-2 outline-offset-2 outline-accent-bg;
+    }
+    ::selection {
+        @apply bg-accent-bg text-on-accent;
+    }
+}
+
+@layer components {
+    /* The wordmark: the name followed by an amber text caret. Size it with text-*.
+       Like the favicon, the caret starts halfway up the capitals and drops below the baseline. */
+    .wordmark {
+        @apply inline-flex items-baseline font-semibold leading-none tracking-[-0.045em] whitespace-nowrap;
+    }
+    .wordmark::after {
+        content: "";
+        @apply ml-[0.12em] inline-block h-[0.6em] w-[0.09em] translate-y-[0.2em] bg-accent-bg;
+    }
+    .wordmark--blink::after {
+        @apply animate-blink;
+    }
+
+    /* Buttons. Primary and secondary share one size so they line up side by side;
+       only the fill differs. Use .btn--sm for buttons that stand on their own (filters, toolbars). */
+    .btn {
+        @apply inline-flex items-center gap-2 rounded-control border border-fg bg-fg px-3.5 py-2.5 text-sm leading-tight font-medium text-bg no-underline transition-[opacity,background-color,border-color] duration-150 hover:opacity-85 active:translate-y-px;
+    }
+    .btn--secondary {
+        @apply border-line-2 bg-transparent text-fg hover:border-fg-3 hover:bg-bg-2 hover:opacity-100;
+    }
+    .btn--sm {
+        @apply px-2.5 py-1.5 text-[13px];
+    }
+
+    /* The dot field canvas. Full strength in the hero, "soft" and "title" elsewhere. */
+    .dot-field {
+        @apply pointer-events-none absolute inset-0 -z-10 size-full;
+        mask-image: radial-gradient(ellipse 80% 90% at 62% 40%, #000 30%, transparent 75%);
+    }
+    .dot-field--soft {
+        mask-image: radial-gradient(ellipse 55% 85% at 92% 55%, #000 15%, transparent 70%);
+    }
+    .dot-field--title {
+        mask-image: radial-gradient(ellipse 50% 100% at 95% 30%, #000 10%, transparent 70%);
+    }
+}
+
+/* Mobile menu: once the sheet is halfway up, the links rise in one after another. */
+@keyframes menu-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+}
+[data-menu][data-open] nav li {
+    animation: menu-rise 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+[data-menu][data-open] nav li:nth-child(1) { animation-delay: 140ms; }
+[data-menu][data-open] nav li:nth-child(2) { animation-delay: 200ms; }
+[data-menu][data-open] nav li:nth-child(3) { animation-delay: 260ms; }
+[data-menu][data-open] nav li:nth-child(4) { animation-delay: 320ms; }
+[data-menu][data-open] nav li:nth-child(5) { animation-delay: 380ms; }
+[data-menu][data-open] nav li:nth-child(6) { animation-delay: 440ms; }
+
+/* Theme toggle icon: sun in dark mode, moon in light mode. They swap with a small turn. */
+.theme-icon {
+    position: relative;
+    display: grid;
+    width: 1rem;
+    height: 1rem;
+}
+.theme-icon svg {
+    grid-area: 1 / 1;
+    width: 1rem;
+    height: 1rem;
+    transition: opacity 300ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.theme-icon__moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+}
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .theme-icon__sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+    :root:not([data-theme="dark"]) .theme-icon__moon { opacity: 1; transform: none; }
+}
+:root[data-theme="light"] .theme-icon__sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+:root[data-theme="light"] .theme-icon__moon { opacity: 1; transform: none; }
+
+/* Theme switch: site.js animates the new snapshot as a growing circle, so the default cross-fade is turned off. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+/* Fallback for browsers without view transitions. */
+.theme-fade,
+.theme-fade * {
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+}

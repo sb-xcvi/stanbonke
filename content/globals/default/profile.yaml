@@ -1,0 +1,15 @@
+name: 'S. Bonke'
+role: 'Web developer'
+location: Belgium
+tagline: 'Websites built to be edited.'
+now: 'Currently exploring Statamic'
+availability: 'Open to new roles'
+intro: 'Web developer from Belgium. I build content-managed websites with WordPress, Craft CMS and PHP, and I am currently exploring Statamic and modern frontend tooling.'
+email: hello@example.com
+links:
+  -
+    label: GitHub
+    url: 'https://github.com/'
+  -
+    label: LinkedIn
+    url: 'https://www.linkedin.com/'

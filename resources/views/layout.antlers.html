@@ -3,11 +3,25 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ (title ?? site:name) | sanitize }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <title>{{ if title && segment_1 }}{{ title | sanitize }} · {{ /if }}{{ profile:name | sanitize }}</title>
+        <meta name="theme-color" content="#0f1012">
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {{# Apply a saved theme before first paint, so there is no flash of the wrong theme. #}}
+        <script>
+            try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+        </script>
         {{ vite src="resources/js/site.js|resources/css/site.css" }}
     </head>
-    <body class="antialiased bg-zinc-100 font-sans leading-normal text-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-        {{ template_content }}
+    <body class="flex min-h-dvh flex-col">
+        <a href="#main" class="fixed top-[-60px] left-3 z-[100] rounded-control bg-fg px-3.5 py-2 text-bg no-underline focus:top-3">Skip to content</a>
+
+        {{ partial:partials/header }}
+
+        <main id="main" class="grow pb-24 lg:pb-6">
+            {{ template_content }}
+        </main>
+
+        {{ partial:partials/footer }}
     </body>
 </html>
