@@ -52,6 +52,15 @@ tabs:
               display: Introduction
               instructions: 'Two or three sentences for the homepage hero.'
       -
+        display: Site
+        fields:
+          -
+            handle: coming_soon
+            field:
+              type: toggle
+              display: 'Coming soon'
+              instructions: 'While on, menu items are shown as "soon" and the homepage lists them as in progress.'
+      -
         display: Contact
         fields:
           -

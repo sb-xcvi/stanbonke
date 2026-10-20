@@ -26,9 +26,37 @@
             <li>status <b class="font-normal text-fg">{{ profile:availability }}</b></li>
         </ul>
 
-        <div class="mt-9 flex flex-wrap gap-2.5">
-            <a href="/work" class="btn">View work</a>
-            <a href="mailto:{{ profile:email }}" class="btn btn--secondary">Email me</a>
+        <div class="mt-9 flex flex-wrap items-center gap-2.5">
+            {{ if profile:coming_soon }}
+                <a href="mailto:{{ profile:email }}" class="btn">Email me</a>
+                <button type="button" class="btn btn--secondary cursor-pointer" data-copy="{{ profile:email }}" data-copy-label="Copy email address">Copy email address</button>
+            {{ else }}
+                <a href="/work" class="btn">View work</a>
+                <a href="mailto:{{ profile:email }}" class="btn btn--secondary">Email me</a>
+            {{ /if }}
         </div>
     </div>
 </section>
+
+{{# Coming soon: lists the sections from the main navigation as "in progress". Turn it off in Globals > Profile. #}}
+{{ if profile:coming_soon }}
+    <section class="mx-auto max-w-[1200px] border-t border-line px-5 py-16 sm:px-10 md:py-20">
+        <div class="grid gap-6 md:grid-cols-[1fr_3fr] md:gap-12">
+            <div>
+                <span class="font-mono text-xs text-fg-3">in progress</span>
+                <h2 class="mt-2 text-[clamp(24px,3vw,32px)] leading-tight font-semibold tracking-[-0.03em]">The full portfolio is on its way</h2>
+            </div>
+            <div>
+                <p class="max-w-[58ch] text-[17px] leading-[1.75] text-fg-2">This site is being built with Statamic. Projects, experience and a downloadable CV will land here soon. Until then, email is the quickest way to reach me.</p>
+                <ul class="mt-8 border-t border-line">
+                    {{ nav:main }}
+                        <li class="flex items-baseline justify-between gap-4 border-b border-line py-3.5">
+                            <span class="text-fg">{{ title }}</span>
+                            <span class="inline-flex items-center gap-2 font-mono text-xs text-fg-3"><i class="size-[7px] rounded-full bg-warn" aria-hidden="true"></i>in progress</span>
+                        </li>
+                    {{ /nav:main }}
+                </ul>
+            </div>
+        </div>
+    </section>
+{{ /if }}

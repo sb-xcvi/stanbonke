@@ -7,6 +7,8 @@
         <title>{{ if title && segment_1 }}{{ title | sanitize }} · {{ /if }}{{ profile:name | sanitize }}</title>
         <meta name="theme-color" content="#0f1012">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+        <link rel="manifest" href="/manifest.webmanifest">
         {{# Apply a saved theme before first paint, so there is no flash of the wrong theme. #}}
         <script>
             try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}

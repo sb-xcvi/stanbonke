@@ -10,7 +10,11 @@
                 <ul class="flex flex-col gap-1.5 text-sm">
                     <li><a href="/" class="text-fg-2 no-underline hover:text-fg">Home</a></li>
                     {{ nav:main }}
-                        <li><a href="{{ url }}" class="text-fg-2 no-underline hover:text-fg">{{ title }}</a></li>
+                        {{ if profile:coming_soon }}
+                            <li class="text-fg-3/70">{{ title }} <span class="font-mono text-[11px]">soon</span></li>
+                        {{ else }}
+                            <li><a href="{{ url }}" class="text-fg-2 no-underline hover:text-fg">{{ title }}</a></li>
+                        {{ /if }}
                     {{ /nav:main }}
                 </ul>
             </div>
@@ -32,6 +36,10 @@
     </div>
     <div class="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-3 border-t border-line px-5 py-5 font-mono text-xs text-fg-3 sm:px-10">
         <span>© {{ now format="Y" }} {{ profile:name }}</span>
-        <span>{{ profile:now | lower }}</span>
+        <span class="flex flex-wrap gap-x-5 gap-y-1">
+            {{# Shown by site.js only when the browser offers installation. #}}
+            <button type="button" data-install hidden class="cursor-pointer text-fg-3 underline decoration-line-2 underline-offset-4 hover:text-fg">install as app</button>
+            <span>{{ profile:now | lower }}</span>
+        </span>
     </div>
 </footer>

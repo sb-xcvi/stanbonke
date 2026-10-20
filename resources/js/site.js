@@ -189,3 +189,69 @@ function decode(element, duration = 700) {
 }
 
 document.querySelectorAll('[data-decode]').forEach((element) => decode(element));
+
+/* ---------- copy buttons: <button data-copy="text"> ---------- */
+document.querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        const label = button.dataset.copyLabel || button.textContent;
+        try {
+            await navigator.clipboard.writeText(button.dataset.copy);
+            button.textContent = 'Copied';
+        } catch (e) {
+            button.textContent = button.dataset.copy;
+        }
+        setTimeout(() => { button.textContent = label; }, 2000);
+    });
+});
+
+/* ---------- current path ----------
+ * On the static site the 404 page is one file served for every missing URL,
+ * so the path printed at build time is wrong. Show the real one. */
+const basePath = new URL(document.querySelector('link[rel="manifest"]')?.href || '/', location.href).pathname.replace(/[^/]*$/, '');
+document.querySelectorAll('[data-current-path]').forEach((element) => {
+    element.textContent = '~/' + decodeURIComponent(location.pathname.slice(basePath.length)).replace(/\/$/, '');
+});
+
+/* ---------- installable app ---------- */
+if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register(new URL('sw.js', location.origin + basePath), { scope: basePath }).catch(() => {});
+    });
+}
+
+/*
+ * "Install as app" stays hidden until the browser says the site can be installed
+ * (Chrome, Edge, Android). On iPhone and iPad there is no such event, so the link
+ * explains Add to Home Screen instead. Already installed: nothing is shown.
+ */
+const installButtons = document.querySelectorAll('[data-install]');
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    if (!standalone) installButtons.forEach((button) => { button.hidden = false; });
+});
+
+if (isIOS && !standalone) installButtons.forEach((button) => { button.hidden = false; });
+
+installButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+        if (installPrompt) {
+            installPrompt.prompt();
+            const { outcome } = await installPrompt.userChoice;
+            if (outcome === 'accepted') installButtons.forEach((b) => { b.hidden = true; });
+            installPrompt = null;
+            return;
+        }
+        if (isIOS) {
+            const original = button.lastChild.textContent;
+            button.lastChild.textContent = ' Tap Share, then Add to Home Screen';
+            setTimeout(() => { button.lastChild.textContent = original; }, 4000);
+        }
+    });
+});
+
+window.addEventListener('appinstalled', () => installButtons.forEach((button) => { button.hidden = true; }));
