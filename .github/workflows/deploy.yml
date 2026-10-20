@@ -1,0 +1,86 @@
+# Builds the Statamic site as static HTML (statamic/ssg) and publishes it to GitHub Pages.
+# Runs on every push to main, or by hand from the Actions tab.
+# One-time setup: Settings > Pages > Build and deployment > Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # origin is e.g. https://sb-xcvi.github.io, base_url https://sb-xcvi.github.io/stanbonke,
+      # base_path /stanbonke. APP_URL stays the bare origin (with a path, the generator nests every
+      # page under it); the sub-path is added to links afterwards by scripts/prefix-base-path.mjs.
+      # With a custom domain base_path becomes empty and nothing below needs changing.
+      - name: Environment
+        run: |
+          cp .env.example .env
+          {
+            echo "APP_ENV=production"
+            echo "APP_DEBUG=false"
+            echo "APP_URL=${{ steps.pages.outputs.origin }}"
+            echo "ASSET_URL=${{ steps.pages.outputs.base_url }}"
+          } >> .env
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - run: php artisan key:generate --force
+
+      - name: Build assets
+        run: |
+          npm ci
+          npm run build
+        env:
+          ASSET_URL: ${{ steps.pages.outputs.base_url }}
+
+      - name: Generate static site
+        run: php please ssg:generate
+
+      - name: Prepare for GitHub Pages
+        run: |
+          cp storage/app/static/not-found/index.html storage/app/static/404.html
+          touch storage/app/static/.nojekyll
+          node scripts/prefix-base-path.mjs storage/app/static "${{ steps.pages.outputs.base_path }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storage/app/static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

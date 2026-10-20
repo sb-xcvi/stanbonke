@@ -1,0 +1,99 @@
+{{#
+    Site header.
+    Desktop (lg+): wordmark, main navigation, theme toggle.
+    Mobile: wordmark and theme toggle on top; a "path bar" at the bottom of the
+    screen shows the current URL and opens the full-screen menu (the sheet).
+    While Profile > "Coming soon" is on, menu items are shown but not linked.
+#}}
+<header data-header class="sticky top-0 z-40 border-b border-transparent bg-bg/85 backdrop-blur-md transition-colors duration-200 data-[scrolled]:border-line">
+    <div class="mx-auto flex min-h-14 max-w-[1200px] items-center gap-6 px-5 sm:px-10 lg:min-h-16">
+        <a href="/" class="shrink-0 text-fg no-underline" aria-label="{{ profile:name }}, home">
+            <span class="wordmark text-lg">{{ profile:name }}</span>
+        </a>
+
+        <nav aria-label="Main" class="hidden min-w-0 flex-1 lg:block">
+            <ul class="flex items-center gap-0.5">
+                {{ nav:main }}
+                    <li>
+                        {{ if profile:coming_soon }}
+                            <span class="block cursor-default px-2.5 py-1.5 text-sm text-fg-3/70">{{ title }}</span>
+                        {{ else }}
+                            <a
+                                href="{{ url }}"
+                                class="block rounded-control px-2.5 py-1.5 text-sm text-fg-2 no-underline transition-colors hover:bg-bg-2 hover:text-fg aria-[current=page]:text-fg aria-[current=page]:before:mr-[7px] aria-[current=page]:before:inline-block aria-[current=page]:before:size-[5px] aria-[current=page]:before:rounded-full aria-[current=page]:before:bg-accent-bg aria-[current=page]:before:align-[0.15em]"
+                                {{ if is_current || is_parent }}aria-current="page"{{ /if }}
+                            >{{ title }}</a>
+                        {{ /if }}
+                    </li>
+                {{ /nav:main }}
+                {{ if profile:coming_soon }}
+                    <li class="ml-2 rounded-full border border-line-2 px-2 py-0.5 font-mono text-[11px] text-fg-3">soon</li>
+                {{ /if }}
+            </ul>
+        </nav>
+
+        <button type="button" data-theme-toggle class="ml-auto grid size-[34px] shrink-0 cursor-pointer place-items-center rounded-control border border-line-2 bg-transparent text-fg-2 transition-colors hover:border-fg-3 hover:text-fg lg:ml-0" aria-label="Switch colour theme">
+            {{# The icon shows the theme you switch to: a sun in dark mode, a moon in light mode. #}}
+            <span class="theme-icon">
+                <svg class="theme-icon__sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>
+                <svg class="theme-icon__moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M13.6 9.9A6 6 0 0 1 6.1 2.4a6 6 0 1 0 7.5 7.5Z"/></svg>
+            </span>
+        </button>
+    </div>
+</header>
+
+{{# Mobile path bar #}}
+<div data-pathbar class="fixed bottom-[calc(14px+env(safe-area-inset-bottom))] left-1/2 z-45 flex max-w-[calc(100%-32px)] -translate-x-1/2 rounded-[14px] border border-line-2 bg-bg-3 shadow-[0_16px_40px_-12px_rgba(0,0,0,.55)] transition-[translate,opacity] duration-300 ease-signal data-[away]:translate-y-[calc(100%+30px)] data-[away]:opacity-0 lg:hidden">
+    <button type="button" data-menu-open aria-controls="menu-sheet" aria-expanded="false" class="flex min-w-0 cursor-pointer items-center gap-2.5 px-4 py-3 font-mono text-sm font-medium text-fg">
+        <span class="max-w-[60vw] truncate" data-current-path>~{{ current_uri }}</span>
+        <i class="inline-block h-[15px] w-0.5 shrink-0 animate-blink bg-accent-bg" aria-hidden="true"></i>
+        <span class="sr-only">Open menu</span>
+    </button>
+</div>
+
+{{# Mobile menu sheet #}}
+<div id="menu-sheet" data-menu role="dialog" aria-modal="true" aria-label="Menu" class="invisible fixed inset-0 z-70 flex translate-y-full flex-col overflow-y-auto bg-bg px-5 pt-[calc(env(safe-area-inset-top)+12px)] pb-[calc(env(safe-area-inset-bottom)+20px)] transition-[translate,visibility] duration-[480ms] ease-[cubic-bezier(.32,.72,0,1)] data-[open]:visible data-[open]:translate-y-0 data-[open]:duration-[620ms] lg:hidden">
+    <div class="relative isolate flex grow flex-col">
+        <canvas class="dot-field [mask-image:linear-gradient(to_top,#000,transparent_55%)]" data-dot-field aria-hidden="true"></canvas>
+        <div class="flex min-h-11 items-center justify-between">
+            <span class="wordmark text-lg">{{ profile:name }}</span>
+            <button type="button" data-menu-close class="grid size-[34px] cursor-pointer place-items-center rounded-control border border-line-2 text-fg-2" aria-label="Close menu">
+                <svg class="size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3.5 3.5 9 9M12.5 3.5l-9 9"/></svg>
+            </button>
+        </div>
+        <p class="mt-7 mb-2 font-mono text-xs text-fg-3">you are at <b class="font-medium text-accent" data-current-path>~{{ current_uri }}</b></p>
+        <nav aria-label="Menu">
+            <ol class="border-t border-line">
+                <li class="border-b border-line">
+                    <a href="/" class="group flex items-baseline justify-between gap-3 py-3.5 no-underline" {{ if current_uri == '/' }}aria-current="page"{{ /if }}>
+                        <span class="text-[clamp(34px,10vw,48px)] leading-none font-semibold tracking-[-0.05em] text-fg-2 group-aria-[current=page]:text-fg">Home</span>
+                        <span class="font-mono text-xs text-fg-3">/</span>
+                    </a>
+                </li>
+                {{ nav:main }}
+                    <li class="border-b border-line">
+                        {{ if profile:coming_soon }}
+                            <span class="flex items-baseline justify-between gap-3 py-3.5">
+                                <span class="text-[clamp(34px,10vw,48px)] leading-none font-semibold tracking-[-0.05em] text-fg-3/60">{{ title }}</span>
+                                <span class="font-mono text-xs text-fg-3">soon</span>
+                            </span>
+                        {{ else }}
+                            <a href="{{ url }}" class="group flex items-baseline justify-between gap-3 py-3.5 no-underline" {{ if is_current || is_parent }}aria-current="page"{{ /if }}>
+                                <span class="text-[clamp(34px,10vw,48px)] leading-none font-semibold tracking-[-0.05em] text-fg-2 group-aria-[current=page]:text-fg">{{ title }}</span>
+                                <span class="font-mono text-xs text-fg-3">{{ url }}</span>
+                            </a>
+                        {{ /if }}
+                    </li>
+                {{ /nav:main }}
+            </ol>
+        </nav>
+        <button type="button" data-install hidden class="mt-6 inline-flex w-fit cursor-pointer items-center gap-2 font-mono text-xs text-fg-2 underline decoration-line-2 underline-offset-4 hover:text-fg">
+            <svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 12.5h10"/></svg>
+            Install as app
+        </button>
+        <div class="mt-auto flex flex-wrap justify-between gap-3 pt-7 font-mono text-xs text-fg-3">
+            <span>{{ profile:email }}</span>
+            <span>{{ profile:now | lower }}</span>
+        </div>
+    </div>
+</div>
