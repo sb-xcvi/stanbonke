@@ -6,7 +6,7 @@
  * Paths are resolved against the worker's scope, so this works at / and under a sub-path (GitHub Pages).
  * Bump VERSION to force every visitor onto a fresh cache.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `signal-${VERSION}`;
 const scope = new URL(self.registration.scope);
 const home = new URL('./', scope).href;
